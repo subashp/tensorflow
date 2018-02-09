@@ -251,6 +251,42 @@ TEST(TFCompileTest, MatMul2) {
   }
 }
 
+TEST(TFCompileTest, NodMatMul) {
+  Eigen::ThreadPool tp(2);
+  Eigen::ThreadPoolDevice device(&tp, tp.NumThreads());
+
+  foo::bar::MatMulComp matmul;
+  matmul.set_thread_pool(&device);
+  EXPECT_EQ(matmul.arg0_data(), matmul.args()[0]);
+  EXPECT_EQ(matmul.arg1_data(), matmul.args()[1]);
+
+  {
+    matmul.arg0(0, 0) = 1;
+    matmul.arg0(0, 1) = 2;
+    matmul.arg0(0, 2) = 3;
+    matmul.arg0(1, 0) = 4;
+    matmul.arg0(1, 1) = 5;
+    matmul.arg0(1, 2) = 6;
+
+    matmul.arg1(0, 0) = 7;
+    matmul.arg1(0, 1) = 8;
+    matmul.arg1(1, 0) = 9;
+    matmul.arg1(1, 1) = 10;
+    matmul.arg1(2, 0) = 11;
+    matmul.arg1(2, 1) = 12;
+
+    EXPECT_TRUE(matmul.Run());
+    EXPECT_EQ(matmul.error_msg(), "");
+
+    const float results[4] = {58, 64, 139, 154};
+    for (int i = 0; i < 4; i++) {
+      EXPECT_EQ(matmul.result0(i / 2, i % 2), results[i]);
+      EXPECT_EQ(matmul.result0_data()[i], results[i]);
+    }
+    EXPECT_EQ(matmul.result0_data(), matmul.results()[0]);
+  }
+}
+
 // Run tests that use set_argN_data separately, to avoid accidentally re-using
 // non-existent buffers.
 TEST(TFCompileTest, MatMul2_SetArg) {

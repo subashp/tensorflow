@@ -20,6 +20,7 @@ test_suite(
         ":test_graph_tfmatmulandadd_test",
         ":test_graph_tfsplits_test",
         ":tfcompile_test",
+        ":nodcompile_test",
     ],
 )
 
@@ -162,6 +163,21 @@ tf_cc_test(
         "//tensorflow/core:test",
         "//tensorflow/core:test_main",
         "//third_party/eigen3",
+    ],
+)
+
+tf_cc_test(
+    name = "nodcompile_test",
+    srcs = ["nodcompile_test.cc"],
+    tags = ["manual"],
+    deps = [
+      ":test_graph_tfmatmul",
+      ":test_graph_tfmatmulandadd",
+      "//tensorflow/compiler/xla:shape_util",
+      "//tensorflow/compiler/xla:xla_data_proto",
+      "//tensorflow/core:test",
+      "//tensorflow/core:test_main",
+      "//third_party/eigen3",
     ],
 )
 

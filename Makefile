@@ -15,10 +15,12 @@ VPATH := .
 
 INCLUDES := -I.
 INCLUDES += -Ibazel-tensorflow
-INCLUDES += -Ibazel-tensorflow/third_party/eigen3
 INCLUDES += -Ibazel-genfiles
+INCLUDES += -Ibazel-tensorflow/external/eigen_archive
+INCLUDES += -Ibazel-tensorflow/external/boringssl/src/third_party/googletest/include
+INCLUDES += -Ibazel-tensorflow/external/protobuf_archive/src
 INCLUDES += -Ibazel-tensorflow/external/nsync/public
-INCLUDES += -Ibazel-tensorflow/external/com_google_googletest/googletest/include
+INCLUDES += -Ibazel-genfiles/tensorflow/compiler/xla
 
 LIB_PATH := -Lbazel-bin/tensorflow/compiler/tf2xla
 LIB_PATH += -Lbazel-bin/tensorflow/compiler/aot
@@ -30,6 +32,7 @@ LIBS += -lruntime
 LIBS += -lruntime_matmul
 LIBS += -lruntime_matvec
 LIBS += -lexecutable_run_options
+LIBS += -lpthread
 
 SRC := nod_tfcompile_test.cc
 
@@ -53,7 +56,7 @@ build: $(BIN)
 .PHONY: build
 
 clean:
-	$(SILENT) -rm $(BIN) *.o
+	-$(SILENT) rm $(BIN) *.o
 .PHONY: clean
 
 # This can be executed only once - broken - python is not being invoked
@@ -65,4 +68,3 @@ gen_graph:
 	cp test_graph_tfmatmul.config.pbtxt $(TF_ROOT)
 	cd -
 .PHONY: gen_graph
-

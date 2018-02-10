@@ -17,7 +17,7 @@ using namespace testgraph;
 
 int main(int argc, char **argv) {
   Eigen::ThreadPool tp(2);
-  Eigen::ThreadpoolDevice device(&tp, tp.NumThreads());
+  Eigen::ThreadPoolDevice device(&tp, tp.NumThreads());
   MatMul matmul;
 
   matmul.set_thread_pool(&device);
@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
+  std::cout << "The output matrix is:" << std::endl;
   for (int i = 0; i < 4; i++) {
     std::cout << matmul.result0(i / 2, i % 2) << " ";
   }

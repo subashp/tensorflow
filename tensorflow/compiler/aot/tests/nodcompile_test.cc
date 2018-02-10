@@ -4,18 +4,21 @@
 #define EIGEN_USE_THREADS
 #define EIGEN_USE_CUSTOM_THREAD_POOL
 
+#include <iostream>
+
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 #include "tensorflow/compiler/aot/tests/test_graph_tfmatmul.h"
 #include "tensorflow/compiler/aot/tests/test_graph_tfmatmulandadd.h"
 #include "tensorflow/compiler/xla/shape_util.h"
 #include "tensorflow/compiler/xla/xla_data.pb.h"
 #include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/grappler/devices.h"
 
 namespace tensorflow {
 namespace tfcompile {
 namespace {
 TEST(TFCompileTest, NodMatMul) {
-  Eigen::ThreadPool tp(2);
+  Eigen::ThreadPool tp(port::NumSchedulableCPUs());
   Eigen::ThreadPoolDevice device(&tp, tp.NumThreads());
 
   foo::bar::MatMulComp matmul;
@@ -48,5 +51,13 @@ TEST(TFCompileTest, NodMatMul) {
     }
     EXPECT_EQ(matmul.result0_data(), matmul.results()[0]);
   }
+
+  int32_t num_gpus = tensorflow::grappler::GetNumAvailableGPUs();
+  int64_t available_memory = tensorflow::grappler::AvailableGPUMemory(num_gpus - 1);  // assume 1 GPU for now
+  int32_t logical_cpus = tensorflow::grappler::GetNumAvailableLogicalCPUCores();
+
+  std::cout << "NumGPUs() = " << num_gpus << std::endl;
+  std::cout << "Available GPU memory = " << available_memory / 1024 / 1024 / 1024 << " GB" << std::endl;
+  std::cout << "Available CPU cores = " << logical_cpus << std::endl;
 }
 }}}

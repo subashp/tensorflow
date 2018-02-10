@@ -177,6 +177,7 @@ tf_cc_test(
       "//tensorflow/compiler/xla:xla_data_proto",
       "//tensorflow/core:test",
       "//tensorflow/core:test_main",
+      "//tensorflow/core/grappler:devices",
       "//third_party/eigen3",
     ],
 )

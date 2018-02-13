@@ -9,6 +9,14 @@ CPP := g++
 CPPFLAGS := -g -std=c++11
 DEFINES :=
 
+# due to all the shenanigans of the protobuf, we will use the compiler
+# and the library TF folks build. If you got something that can create
+# conflict, remove from the PATH
+export PATH := bazel-out/host/bin/external/protobuf_archive:$(PATH)
+
+# This should be equivalent to LD_LIBRARY_PATH from the shell
+LDFLAGS := -Wl,-rpath,bazel-bin/tensorflow/compiler/tf2xla,-rpath,bazel-bin/tensorflow/compiler/aot,-rpath,bazel-bin/tensorflow/compiler/xla/service/cpu,-rpath,bazel-bin/tensorflow/compiler/xla
+
 TF_ROOT = /home/subash/deep_learning/tensorflow
 
 VPATH := .
@@ -50,7 +58,7 @@ tf_compile:
 	$(TF_ROOT)/bazel-bin/tensorflow/compiler/aot/tfcompile --graph="test_graph_tfmatmul.pb" --config="test_graph_tfmatmul.config.pbtxt" --cpp_class="testgraph::MatMul"
 
 $(BIN): tf_compile out_helper.o out_model.o $(OBJS)
-	$(SILENT) $(CPP) $(CPPFLAGS) $(OBJS) out_helper.o out_model.o $(LIB_PATH) $(LIBS) -o $@
+	$(SILENT) $(CPP) $(CPPFLAGS) $(OBJS) out_helper.o out_model.o $(LIB_PATH) $(LIBS) $(LDFLAGS) -o $@
 
 build: $(BIN)
 .PHONY: build
